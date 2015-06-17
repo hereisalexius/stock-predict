@@ -19,6 +19,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.StandardOpenOption;
+import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -105,14 +106,14 @@ public class Form extends javax.swing.JFrame {
 
     public Form() {
         fc = new JFileChooser();
-        this.index = "DAX";
+        this.index = "DE";
         this.interval = Interval.DAILY;
         this.from = Calendar.getInstance();
         this.to = Calendar.getInstance();
         this.from.add(Calendar.MONTH, -2);
         this.predict = 1;
         this.hiddenLayerSize = 9;
-        this.maxIterations = 9000;
+        this.maxIterations = 10000;
         this.maxError = 0.0001;
         this.learningRate = 0.7;
         this.learningRule = new BackPropagation();
@@ -561,86 +562,17 @@ public class Form extends javax.swing.JFrame {
             neuralNetwork.randomizeWeights();
         }
         jTextField2.setText("learning");
+        neuralNetwork.randomizeWeights(new SecureRandom());
         neuralNetwork.learn(dataSet);
+
         jTextField2.setText("finished");
         days = predict(predict, days, max);
 
-//        for (Double[] finalRow : finalRows) {
-//            System.out.println(finalRow[3]);
-//        }
-//        double[] normalized = new double[days.size()];
-//
-//        for (int i = 0; i < normalized.length; i++) {
-//            normalized[i] = days.get(i)[3] / max;
-//
-//        }
-//        DataSet dataSet = new DataSet(4, 1);
-//        double[] in = new double[4];
-//        double[] out = new double[1];
-//        for (int i = 0; i < normalized.length - 5; i++) {
-//            for (int j = i; j < i + 4; j++) {
-//                in[j - i] = normalized[j];
-//            }
-//            out[0] = normalized[i + 4];
-//            dataSet.addRow(in, out);
-//        }
-//
-//        if (jCheckBox1.isSelected()) {
-//            neuralNetwork.randomizeWeights();
-//        }
-//        neuralNetwork.learn(dataSet);
-//
-////        Double[] data = new Double[days.size() + predict];
-////        for (int i = 0; i < days.size(); i++) {
-////            data[i] = days.get(i)[3]/100.0D;
-////
-////        }
-//        List<Double> pr = new ArrayList<>();
-//        for (int i = 0; i < predict; i++) {
-//            neuralNetwork.setInput(new double[]{
-//                days.get(days.size() - 1)[3] / max,
-//                days.get(days.size() - 2)[3] / max,
-//                days.get(days.size() - 3)[3] / max,
-//                days.get(days.size() - 4)[3] / max
-//            });
-//
-//            neuralNetwork.calculate();
-//            double result = (neuralNetwork.getOutput()[0] * max / 100.0D);
-//            days.add(new Double[]{
-//                days.get(days.size() - 1)[0] + 1,
-//                days.get(days.size() - 1)[1],
-//                days.get(days.size() - 1)[2],
-//                result});
-//
-//            pr.add(result);
-//        }
-////
-//        Double[] pdata = new Double[days.size()];
-//        for (int i = 0; i < days.size() - predict; i++) {
-//            pdata[i] = 0d;
-//
-//        }
-//
-////
-//        for (int i = days.size() - predict; i < days.size(); i++) {
-//            pdata[i] = days.get(i)[3];
-//            data[i] = 0d;
-//
-//        }
-////
-//        List<String> ptime = new ArrayList<>();
-//        for (Double[] day : days) {
-//            ptime.add(day[0] + "." + day[1] + "." + day[2]);
-//        }
         JDialog dialog = new JDialog(this);
 
-        // Create Chart
-        // Create Chart
-        // Create Chart
         Chart chart = new ChartBuilder().width(800).height(600).title("Time Line").build();
         chart.getStyleManager().setLegendVisible(false);
 
-// generate data
         List<Date> xData = new ArrayList<>();
         List<Date> xDatap = new ArrayList<>();
         List<Double> yData = new ArrayList<>();
@@ -707,23 +639,24 @@ public class Form extends javax.swing.JFrame {
             days.get(days.size() - 1)[3] / max,
             days.get(days.size() - 2)[3] / max,
             days.get(days.size() - 3)[3] / max,
-            days.get(days.size() - 4)[3] / max
-        });
+            days.get(days.size() - 4)[3] / max,});
 
         neuralNetwork.calculate();
-        double result = (neuralNetwork.getOutput()[0] * max);
-        days.add(new Double[]{
-            days.get(days.size() - 1)[0] + 1,
-            days.get(days.size() - 1)[1],
-            days.get(days.size() - 1)[2],
-            result});
 
-        p--;
-        if (p > 0) {
-            return predict(p, days, max);
-        } else {
-            return days;
+        for (double result : neuralNetwork.getOutput()) {
+            days.add(new Double[]{
+                days.get(days.size() - 1)[0] + 1,
+                days.get(days.size() - 1)[1],
+                days.get(days.size() - 1)[2],
+                result * max});
         }
+
+//        p--;
+//        if (p > 0) {
+//            return predict(p, days, max);
+//        } else {
+        return days;
+        // }
     }
 
     private void jTextField1InputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_jTextField1InputMethodTextChanged

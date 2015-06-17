@@ -446,7 +446,7 @@ public class Form extends javax.swing.JFrame {
             System.out.println(day);
             double month = hq.getDate().get(Calendar.MONTH);
             double year = hq.getDate().get(Calendar.YEAR);
-            double close = hq.getClose().doubleValue();
+            double close = hq.getAdjClose().doubleValue();
             days.add(new Double[]{day, month, year, close});
         }
 

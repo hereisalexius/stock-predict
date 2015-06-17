@@ -19,14 +19,19 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.StandardOpenOption;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JDialog;
@@ -38,13 +43,33 @@ import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
 import org.neuroph.core.NeuralNetwork;
 import org.neuroph.core.data.DataSet;
+import org.neuroph.core.learning.IterativeLearning;
 import org.neuroph.core.learning.LearningRule;
+import org.neuroph.core.learning.SupervisedLearning;
+import org.neuroph.core.learning.UnsupervisedLearning;
 import org.neuroph.nnet.MultiLayerPerceptron;
+import org.neuroph.nnet.learning.AntiHebbianLearning;
 import org.neuroph.nnet.learning.BackPropagation;
+import org.neuroph.nnet.learning.BinaryDeltaRule;
+import org.neuroph.nnet.learning.BinaryHebbianLearning;
+import org.neuroph.nnet.learning.CompetitiveLearning;
+import org.neuroph.nnet.learning.ConvolutionalBackpropagation;
+import org.neuroph.nnet.learning.DynamicBackPropagation;
+import org.neuroph.nnet.learning.GeneralizedHebbianLearning;
 import org.neuroph.nnet.learning.HopfieldLearning;
+import org.neuroph.nnet.learning.InstarLearning;
+import org.neuroph.nnet.learning.KohonenLearning;
 import org.neuroph.nnet.learning.LMS;
 import org.neuroph.nnet.learning.MomentumBackpropagation;
+import org.neuroph.nnet.learning.OjaLearning;
+import org.neuroph.nnet.learning.OutstarLearning;
+import org.neuroph.nnet.learning.PerceptronLearning;
 import org.neuroph.nnet.learning.RBFLearning;
+import org.neuroph.nnet.learning.ResilientPropagation;
+import org.neuroph.nnet.learning.SigmoidDeltaRule;
+import org.neuroph.nnet.learning.SimulatedAnnealingLearning;
+import org.neuroph.nnet.learning.SupervisedHebbianLearning;
+import org.neuroph.nnet.learning.UnsupervisedHebbianLearning;
 import org.neuroph.util.TransferFunctionType;
 import yahoofinance.Stock;
 import yahoofinance.YahooFinance;
@@ -87,8 +112,8 @@ public class Form extends javax.swing.JFrame {
         this.from.add(Calendar.MONTH, -2);
         this.predict = 1;
         this.hiddenLayerSize = 9;
-        this.maxIterations = 10000;
-        this.maxError = 0.001;
+        this.maxIterations = 9000;
+        this.maxError = 0.0001;
         this.learningRate = 0.7;
         this.learningRule = new BackPropagation();
         this.transferFunctionType = TransferFunctionType.SIGMOID;
@@ -425,6 +450,70 @@ public class Form extends javax.swing.JFrame {
             ((MomentumBackpropagation) neuralNetwork.getLearningRule()).setMaxIterations(maxIterations);
             ((MomentumBackpropagation) neuralNetwork.getLearningRule()).setMaxError(maxError);
             ((MomentumBackpropagation) neuralNetwork.getLearningRule()).setLearningRate(learningRate);
+        } else if (lr instanceof AntiHebbianLearning) {
+            ((AntiHebbianLearning) neuralNetwork.getLearningRule()).setMaxIterations(maxIterations);
+            ((AntiHebbianLearning) neuralNetwork.getLearningRule()).setLearningRate(learningRate);
+        } else if (lr instanceof BinaryDeltaRule) {
+            ((BinaryDeltaRule) neuralNetwork.getLearningRule()).setMaxIterations(maxIterations);
+            ((BinaryDeltaRule) neuralNetwork.getLearningRule()).setMaxError(maxError);
+            ((BinaryDeltaRule) neuralNetwork.getLearningRule()).setLearningRate(learningRate);
+        } else if (lr instanceof BinaryHebbianLearning) {
+            ((BinaryHebbianLearning) neuralNetwork.getLearningRule()).setMaxIterations(maxIterations);
+            ((BinaryHebbianLearning) neuralNetwork.getLearningRule()).setLearningRate(learningRate);
+        } else if (lr instanceof CompetitiveLearning) {
+            ((CompetitiveLearning) neuralNetwork.getLearningRule()).setMaxIterations(maxIterations);
+            ((CompetitiveLearning) neuralNetwork.getLearningRule()).setLearningRate(learningRate);
+        } else if (lr instanceof ConvolutionalBackpropagation) {
+            ((ConvolutionalBackpropagation) neuralNetwork.getLearningRule()).setMaxIterations(maxIterations);
+            ((ConvolutionalBackpropagation) neuralNetwork.getLearningRule()).setMaxError(maxError);
+            ((ConvolutionalBackpropagation) neuralNetwork.getLearningRule()).setLearningRate(learningRate);
+        } else if (lr instanceof DynamicBackPropagation) {
+            ((DynamicBackPropagation) neuralNetwork.getLearningRule()).setMaxIterations(maxIterations);
+            ((DynamicBackPropagation) neuralNetwork.getLearningRule()).setMaxError(maxError);
+            ((DynamicBackPropagation) neuralNetwork.getLearningRule()).setLearningRate(learningRate);
+        } else if (lr instanceof GeneralizedHebbianLearning) {
+            ((GeneralizedHebbianLearning) neuralNetwork.getLearningRule()).setMaxIterations(maxIterations);
+            ((GeneralizedHebbianLearning) neuralNetwork.getLearningRule()).setLearningRate(learningRate);
+        } else if (lr instanceof HopfieldLearning) {
+
+        } else if (lr instanceof InstarLearning) {
+            ((InstarLearning) neuralNetwork.getLearningRule()).setMaxIterations(maxIterations);
+            ((InstarLearning) neuralNetwork.getLearningRule()).setLearningRate(learningRate);
+        } else if (lr instanceof KohonenLearning) {
+            ((KohonenLearning) neuralNetwork.getLearningRule()).setLearningRate(learningRate);
+        } else if (lr instanceof OjaLearning) {
+            ((OjaLearning) neuralNetwork.getLearningRule()).setMaxIterations(maxIterations);
+            ((OjaLearning) neuralNetwork.getLearningRule()).setLearningRate(learningRate);
+        } else if (lr instanceof OutstarLearning) {
+            ((OutstarLearning) neuralNetwork.getLearningRule()).setMaxIterations(maxIterations);
+            ((OutstarLearning) neuralNetwork.getLearningRule()).setLearningRate(learningRate);
+        } else if (lr instanceof PerceptronLearning) {
+            ((PerceptronLearning) neuralNetwork.getLearningRule()).setMaxIterations(maxIterations);
+            ((PerceptronLearning) neuralNetwork.getLearningRule()).setMaxError(maxError);
+            ((PerceptronLearning) neuralNetwork.getLearningRule()).setLearningRate(learningRate);
+        } else if (lr instanceof ResilientPropagation) {
+            ((ResilientPropagation) neuralNetwork.getLearningRule()).setMaxIterations(maxIterations);
+            ((ResilientPropagation) neuralNetwork.getLearningRule()).setMaxError(maxError);
+            ((ResilientPropagation) neuralNetwork.getLearningRule()).setLearningRate(learningRate);
+        } else if (lr instanceof ResilientPropagation) {
+            ((ResilientPropagation) neuralNetwork.getLearningRule()).setMaxIterations(maxIterations);
+            ((ResilientPropagation) neuralNetwork.getLearningRule()).setMaxError(maxError);
+            ((ResilientPropagation) neuralNetwork.getLearningRule()).setLearningRate(learningRate);
+        } else if (lr instanceof SigmoidDeltaRule) {
+            ((SigmoidDeltaRule) neuralNetwork.getLearningRule()).setMaxIterations(maxIterations);
+            ((SigmoidDeltaRule) neuralNetwork.getLearningRule()).setMaxError(maxError);
+            ((SigmoidDeltaRule) neuralNetwork.getLearningRule()).setLearningRate(learningRate);
+        } else if (lr instanceof SimulatedAnnealingLearning) {
+            ((SimulatedAnnealingLearning) neuralNetwork.getLearningRule()).setMaxIterations(maxIterations);
+            ((SimulatedAnnealingLearning) neuralNetwork.getLearningRule()).setMaxError(maxError);
+            ((SimulatedAnnealingLearning) neuralNetwork.getLearningRule()).setLearningRate(learningRate);
+        } else if (lr instanceof SupervisedHebbianLearning) {
+            ((SupervisedHebbianLearning) neuralNetwork.getLearningRule()).setMaxIterations(maxIterations);
+            ((SupervisedHebbianLearning) neuralNetwork.getLearningRule()).setMaxError(maxError);
+            ((SupervisedHebbianLearning) neuralNetwork.getLearningRule()).setLearningRate(learningRate);
+        } else if (lr instanceof UnsupervisedHebbianLearning) {
+            ((UnsupervisedHebbianLearning) neuralNetwork.getLearningRule()).setMaxIterations(maxIterations);
+            ((UnsupervisedHebbianLearning) neuralNetwork.getLearningRule()).setLearningRate(learningRate);
         }
 
         setLearningRule(lr);
@@ -443,28 +532,18 @@ public class Form extends javax.swing.JFrame {
 
         for (HistoricalQuote hq : history) {
             double day = hq.getDate().get(Calendar.DAY_OF_MONTH);
-            System.out.println(day);
             double month = hq.getDate().get(Calendar.MONTH);
             double year = hq.getDate().get(Calendar.YEAR);
-            double close = hq.getAdjClose().doubleValue();
+            double close = hq.getAdjClose().doubleValue() * 100.0D;
             days.add(new Double[]{day, month, year, close});
         }
 
-        double max = 0;
-        for (Double[] day : days) {
-            if (day[3] > max) {
-                max = day[3];
-            }
-        }
-
-        System.out.println(days.size());
-
-        System.out.println(max);
+        double max = 10000.0D;
 
         double[] normalized = new double[days.size()];
 
         for (int i = 0; i < normalized.length; i++) {
-            normalized[i] = days.get(i)[3] / max * 0.8 + 0.1;
+            normalized[i] = days.get(i)[3] / max;
 
         }
         DataSet dataSet = new DataSet(4, 1);
@@ -481,61 +560,120 @@ public class Form extends javax.swing.JFrame {
         if (jCheckBox1.isSelected()) {
             neuralNetwork.randomizeWeights();
         }
+        jTextField2.setText("learning");
         neuralNetwork.learn(dataSet);
+        jTextField2.setText("finished");
+        days = predict(predict, days, max);
 
-        Double[] data = new Double[days.size() + predict];
-        for (int i = 0; i < days.size(); i++) {
-            data[i] = days.get(i)[3];
-
-        }
-//
-//        List<String> time = new ArrayList<>();
-//        for (Double[] day : days) {
-//            time.add(day[0] + "." + day[1] + "." + day[2]);
+//        for (Double[] finalRow : finalRows) {
+//            System.out.println(finalRow[3]);
 //        }
-
-        List<Double> pr = new ArrayList<>();
-        for (int i = 0; i < predict; i++) {
-            neuralNetwork.setInput(new double[]{
-                days.get(days.size() - 1)[3] / max,
-                days.get(days.size() - 2)[3] / max,
-                days.get(days.size() - 3)[3] / max,
-                days.get(days.size() - 4)[3] / max
-            });
-
-            neuralNetwork.calculate();
-            days.add(new Double[]{days.get(days.size() - 1)[0] + 1, days.get(days.size() - 1)[1], days.get(days.size() - 1)[2], neuralNetwork.getOutput()[0] * max / 0.8 - 0.1});
-            pr.add(neuralNetwork.getOutput()[0] * max / 0.8 - 0.1);
-        }
-
+//        double[] normalized = new double[days.size()];
 //
-        Double[] pdata = new Double[days.size()];
-        for (int i = 0; i < days.size() - predict; i++) {
-            pdata[i] = 0d;
-
-        }
-
+//        for (int i = 0; i < normalized.length; i++) {
+//            normalized[i] = days.get(i)[3] / max;
 //
-        for (int i = days.size() - predict; i < days.size(); i++) {
-            pdata[i] = days.get(i)[3];
-            data[i] = 0d;
-
-        }
+//        }
+//        DataSet dataSet = new DataSet(4, 1);
+//        double[] in = new double[4];
+//        double[] out = new double[1];
+//        for (int i = 0; i < normalized.length - 5; i++) {
+//            for (int j = i; j < i + 4; j++) {
+//                in[j - i] = normalized[j];
+//            }
+//            out[0] = normalized[i + 4];
+//            dataSet.addRow(in, out);
+//        }
 //
-        List<String> ptime = new ArrayList<>();
-        for (Double[] day : days) {
-            ptime.add(day[0] + "." + day[1] + "." + day[2]);
-        }
+//        if (jCheckBox1.isSelected()) {
+//            neuralNetwork.randomizeWeights();
+//        }
+//        neuralNetwork.learn(dataSet);
+//
+////        Double[] data = new Double[days.size() + predict];
+////        for (int i = 0; i < days.size(); i++) {
+////            data[i] = days.get(i)[3]/100.0D;
+////
+////        }
+//        List<Double> pr = new ArrayList<>();
+//        for (int i = 0; i < predict; i++) {
+//            neuralNetwork.setInput(new double[]{
+//                days.get(days.size() - 1)[3] / max,
+//                days.get(days.size() - 2)[3] / max,
+//                days.get(days.size() - 3)[3] / max,
+//                days.get(days.size() - 4)[3] / max
+//            });
+//
+//            neuralNetwork.calculate();
+//            double result = (neuralNetwork.getOutput()[0] * max / 100.0D);
+//            days.add(new Double[]{
+//                days.get(days.size() - 1)[0] + 1,
+//                days.get(days.size() - 1)[1],
+//                days.get(days.size() - 1)[2],
+//                result});
+//
+//            pr.add(result);
+//        }
+////
+//        Double[] pdata = new Double[days.size()];
+//        for (int i = 0; i < days.size() - predict; i++) {
+//            pdata[i] = 0d;
+//
+//        }
+//
+////
+//        for (int i = days.size() - predict; i < days.size(); i++) {
+//            pdata[i] = days.get(i)[3];
+//            data[i] = 0d;
+//
+//        }
+////
+//        List<String> ptime = new ArrayList<>();
+//        for (Double[] day : days) {
+//            ptime.add(day[0] + "." + day[1] + "." + day[2]);
+//        }
         JDialog dialog = new JDialog(this);
 
         // Create Chart
         // Create Chart
-        Chart chart = new ChartBuilder().chartType(ChartType.Bar).width(800).height(600).title("XFactor vs. Age").xAxisTitle("Age").yAxisTitle("XFactor").build();
-        chart.addSeries("real", ptime, Arrays.asList(data));
-        chart.addSeries("prediction", ptime, Arrays.asList(pdata));
+        // Create Chart
+        Chart chart = new ChartBuilder().width(800).height(600).title("Time Line").build();
+        chart.getStyleManager().setLegendVisible(false);
 
-        chart.getStyleManager().setYAxisMin(5);
-        chart.getStyleManager().setYAxisMax(70);
+// generate data
+        List<Date> xData = new ArrayList<>();
+        List<Date> xDatap = new ArrayList<>();
+        List<Double> yData = new ArrayList<>();
+        List<Double> yDatap = new ArrayList<>();
+
+        Date date = null;
+        for (int i = 1; i < days.size(); i++) {
+
+            try {
+                date = new SimpleDateFormat("dd.MM.yyyy").parse(days.get(i)[0].intValue() + "." + days.get(i)[1].intValue() + "." + days.get(i)[2].intValue());
+            } catch (ParseException ex) {
+                Logger.getLogger(Form.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            //date = new Date(days.get(i)[2].intValue(), days.get(i)[1].intValue(), days.get(i)[1].intValue());
+
+            // System.out.println(date.getTime());
+            // System.out.println(date.toString());
+            if (i >= days.size() - predict) {
+                if (i == days.size() - predict) {
+                    xData.add(date);
+                    yData.add(days.get(i)[3] / max);
+                }
+                xDatap.add(date);
+                yDatap.add(days.get(i)[3] / max);
+            } else {
+                xData.add(date);
+                yData.add(days.get(i)[3] / max);
+            }
+
+        }
+
+        chart.addSeries("stock", xData, yData);
+        chart.addSeries("predict", xDatap, yDatap);
 
         XChartPanel cp = new XChartPanel(chart);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -544,17 +682,15 @@ public class Form extends javax.swing.JFrame {
         List<Double> result = new ArrayList<>();
 
         for (int i = days.size() - predict; i < days.size(); i++) {
-
             result.add(days.get(i)[3]);
-            System.out.println(days.get(i)[3]);
 
         }
 
         JTable t = new JTable();
         DefaultTableModel dtm = (DefaultTableModel) t.getModel();
-
-        for (int i = 0; i < result.size(); i++) {
-            dtm.addRow(new Double[]{result.get(i)});
+        dtm.addColumn("prediction");
+        for (Double result1 : result) {
+            dtm.addRow(new Double[]{result1 / 100.0D});
         }
 
         p.add(cp);
@@ -564,6 +700,31 @@ public class Form extends javax.swing.JFrame {
 
         dialog.setVisible(true);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private List<Double[]> predict(int p, List<Double[]> days, double max) {
+
+        neuralNetwork.setInput(new double[]{
+            days.get(days.size() - 1)[3] / max,
+            days.get(days.size() - 2)[3] / max,
+            days.get(days.size() - 3)[3] / max,
+            days.get(days.size() - 4)[3] / max
+        });
+
+        neuralNetwork.calculate();
+        double result = (neuralNetwork.getOutput()[0] * max);
+        days.add(new Double[]{
+            days.get(days.size() - 1)[0] + 1,
+            days.get(days.size() - 1)[1],
+            days.get(days.size() - 1)[2],
+            result});
+
+        p--;
+        if (p > 0) {
+            return predict(p, days, max);
+        } else {
+            return days;
+        }
+    }
 
     private void jTextField1InputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_jTextField1InputMethodTextChanged
         setMaxError(Double.parseDouble(jTextField1.getText()));
@@ -625,19 +786,39 @@ public class Form extends javax.swing.JFrame {
 
     public Map<String, LearningRule> getLearningRules() {
         Map<String, LearningRule> rules = new HashMap<>();
+        rules.put("LMS", new LMS());
         rules.put("Back Propagation", new BackPropagation());
         rules.put("Quick Back Propagation", new MomentumBackpropagation());
-        rules.put("LMS", new LMS());
-        rules.put("RBF Learning", new RBFLearning());
+        rules.put("AntiHebbianLearning", new AntiHebbianLearning());
+        rules.put("BinaryDeltaRule", new BinaryDeltaRule());
+        rules.put("BinaryHebbianLearning", new BinaryHebbianLearning());
+        rules.put("CompetitiveLearning", new CompetitiveLearning());
+        rules.put("ConvolutionalBackpropagation", new ConvolutionalBackpropagation());
+        rules.put("DynamicBackPropagation", new DynamicBackPropagation());
+        rules.put("GeneralizedHebbianLearning", new GeneralizedHebbianLearning());
+        rules.put("HopfieldLearning", new HopfieldLearning());
+        rules.put("InstarLearning", new InstarLearning());
+        rules.put("KohonenLearning", new KohonenLearning());
+        rules.put("OjaLearning", new OjaLearning());
+        rules.put("OutstarLearning", new OutstarLearning());
+        rules.put("PerceptronLearning", new PerceptronLearning());
+        rules.put("ResilientPropagation", new ResilientPropagation());
+        rules.put("SigmoidDeltaRule", new SigmoidDeltaRule());
+        rules.put("SupervisedHebbianLearning", new SupervisedHebbianLearning());
+        rules.put("UnsupervisedHebbianLearning", new UnsupervisedHebbianLearning());
+
         return rules;
     }
 
     public List<String> getLearningRulesNames() {
         List<String> n = new ArrayList<>();
+        n.add("LMS");
         n.add("Back Propagation");
         n.add("Quick Back Propagation");
-        n.add("LMS");
-        n.add("RBF Learning");
+        n.add("DynamicBackPropagation");
+        n.add("ResilientPropagation");
+        n.add("SigmoidDeltaRule");
+        n.add("SupervisedHebbianLearning");
         return n;
     }
 

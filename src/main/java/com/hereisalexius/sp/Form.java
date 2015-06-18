@@ -72,6 +72,8 @@ import org.neuroph.nnet.learning.SimulatedAnnealingLearning;
 import org.neuroph.nnet.learning.SupervisedHebbianLearning;
 import org.neuroph.nnet.learning.UnsupervisedHebbianLearning;
 import org.neuroph.util.TransferFunctionType;
+import org.neuroph.util.random.DistortRandomizer;
+import org.neuroph.util.random.NguyenWidrowRandomizer;
 import yahoofinance.Stock;
 import yahoofinance.YahooFinance;
 import yahoofinance.histquotes.HistoricalQuote;
@@ -114,7 +116,7 @@ public class Form extends javax.swing.JFrame {
         this.predict = 1;
         this.hiddenLayerSize = 9;
         this.maxIterations = 10000;
-        this.maxError = 0.0001;
+        this.maxError = 0.01;
         this.learningRate = 0.7;
         this.learningRule = new BackPropagation();
         this.transferFunctionType = TransferFunctionType.SIGMOID;
@@ -539,33 +541,8 @@ public class Form extends javax.swing.JFrame {
             days.add(new Double[]{day, month, year, close});
         }
 
-        double max = 10000.0D;
+        double max = 100.0D;
 
-        double[] normalized = new double[days.size()];
-
-        for (int i = 0; i < normalized.length; i++) {
-            normalized[i] = days.get(i)[3] / max;
-
-        }
-        DataSet dataSet = new DataSet(4, 1);
-        double[] in = new double[4];
-        double[] out = new double[1];
-        for (int i = 0; i < normalized.length - 5; i++) {
-            for (int j = i; j < i + 4; j++) {
-                in[j - i] = normalized[j];
-            }
-            out[0] = normalized[i + 4];
-            dataSet.addRow(in, out);
-        }
-
-        if (jCheckBox1.isSelected()) {
-            neuralNetwork.randomizeWeights();
-        }
-        jTextField2.setText("learning");
-        neuralNetwork.randomizeWeights(new SecureRandom());
-        neuralNetwork.learn(dataSet);
-
-        jTextField2.setText("finished");
         days = predict(predict, days, max);
 
         JDialog dialog = new JDialog(this);
@@ -588,8 +565,6 @@ public class Form extends javax.swing.JFrame {
             }
             //date = new Date(days.get(i)[2].intValue(), days.get(i)[1].intValue(), days.get(i)[1].intValue());
 
-            // System.out.println(date.getTime());
-            // System.out.println(date.toString());
             if (i >= days.size() - predict) {
                 if (i == days.size() - predict) {
                     xData.add(date);
@@ -635,6 +610,33 @@ public class Form extends javax.swing.JFrame {
 
     private List<Double[]> predict(int p, List<Double[]> days, double max) {
 
+        double[] normalized = new double[days.size()];
+
+        for (int i = 0; i < normalized.length; i++) {
+            normalized[i] = days.get(i)[3] / max;
+
+        }
+
+        DataSet dataSet = new DataSet(4, 1);
+        double[] in = new double[4];
+        double[] out = new double[1];
+        for (int i = 0; i < normalized.length - 5; i++) {
+            for (int j = i; j < i + 4; j++) {
+                in[j - i] = normalized[j];
+            }
+            out[0] = normalized[i + 4];
+            dataSet.addRow(in, out);
+        }
+
+        if (jCheckBox1.isSelected()) {
+            neuralNetwork.randomizeWeights();
+        }
+        jTextField2.setText("learning");
+        neuralNetwork.randomizeWeights(new SecureRandom());
+        neuralNetwork.learn(dataSet);
+
+        jTextField2.setText("finished");
+
         neuralNetwork.setInput(new double[]{
             days.get(days.size() - 1)[3] / max,
             days.get(days.size() - 2)[3] / max,
@@ -651,12 +653,12 @@ public class Form extends javax.swing.JFrame {
                 result * max});
         }
 
-//        p--;
-//        if (p > 0) {
-//            return predict(p, days, max);
-//        } else {
-        return days;
-        // }
+        p--;
+        if (p > 0) {
+            return predict(p, days, max);
+        } else {
+            return days;
+        }
     }
 
     private void jTextField1InputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_jTextField1InputMethodTextChanged
@@ -696,13 +698,9 @@ public class Form extends javax.swing.JFrame {
     public List<TransferFunctionType> getFunctionTypes() {
         List<TransferFunctionType> types = new ArrayList<>();
         types.add(TransferFunctionType.SIGMOID);
-        types.add(TransferFunctionType.STEP);
         types.add(TransferFunctionType.TANH);
         types.add(TransferFunctionType.LOG);
-        types.add(TransferFunctionType.LINEAR);
-        types.add(TransferFunctionType.GAUSSIAN);
         types.add(TransferFunctionType.RAMP);
-        types.add(TransferFunctionType.SGN);
         types.add(TransferFunctionType.SIN);
         types.add(TransferFunctionType.TRAPEZOID);
 

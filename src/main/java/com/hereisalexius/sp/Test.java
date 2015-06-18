@@ -151,6 +151,8 @@ public class Test {
         for (double s : result) {
             c.add(Calendar.DAY_OF_MONTH, +1);
             rowPredicted.put(c.getTime(), s * max);
+            
+            System.out.println(c.getTime()+" , "+s * max);
         }
 
         drawChart(realRow, rowPredicted);

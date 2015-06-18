@@ -47,7 +47,7 @@ public class Test {
         Calendar to = Calendar.getInstance();
         from.add(Calendar.MONTH, -18); // интервал ( Calendar.YEAR Calendar.DAY_OF_MONTH)
         // второй параметр разница между from  и to 
-        // СЛЕДИТЬ ЧТОБЫ ВРЕМЯ ВЫБОРКИ СООТВЕТСТВОВАЛО РАЗМЕРАМ ОКНА НЕРОНОВ и.т.д.
+        // СЛЕДИТЬ ЧТОБЫ ВРЕМЯ ВЫБОРКИ БЫЛО БОЛЕШЕ ЧЕМ ДЛИНА ПРЕДСКАЗАНИЯ
 
         Stock stock = YahooFinance.get("GE", from, to, Interval.DAILY);// первый параметр акция
 

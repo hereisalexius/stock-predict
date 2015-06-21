@@ -20,6 +20,7 @@ import com.xeiam.xchart.Chart;
 import com.xeiam.xchart.ChartBuilder;
 import com.xeiam.xchart.SeriesMarker;
 import com.xeiam.xchart.XChartPanel;
+import java.awt.Color;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,13 +46,15 @@ public class DefaultPrediction extends javax.swing.JDialog {
     private final LearningRule lr;
 
     private int daysTopredict;
+    private int testSelection;
 
-    public DefaultPrediction(java.awt.Frame parent, boolean modal, Series series, TransferFunctionType tft, LearningRule lr, int daysToPredict) {
+    public DefaultPrediction(java.awt.Frame parent, boolean modal, Series series, TransferFunctionType tft, LearningRule lr, int daysToPredict,int testSelection) {
         super(parent, modal);
         this.tft = tft;
         this.series = series;
         this.lr = lr;
         this.daysTopredict = daysToPredict;
+        this.testSelection = testSelection;
        
         //series.convertForPowerOfTwo();
 
@@ -70,7 +73,7 @@ public class DefaultPrediction extends javax.swing.JDialog {
 
     private void setUpErrors() {
 
-        int daysToPredict = series.size() / 2;
+        int daysToPredict = testSelection;
         int windowSize = 2;
         int input = windowSize;
         int hidden = 2 * input + 1;
@@ -158,7 +161,7 @@ public class DefaultPrediction extends javax.swing.JDialog {
         //chart.getStyleManager().setChartType(StyleManager.ChartType.Scatter);
         chart.addSeries("real", row.keySet(), row.values()).setMarker(SeriesMarker.NONE);
         chart.addSeries("checked", row2.keySet(), row2.values()).setMarker(SeriesMarker.NONE);
-        chart.addSeries("predicted", row3.keySet(), row3.values()).setMarker(SeriesMarker.NONE);
+        chart.addSeries("predicted", row3.keySet(), row3.values()).setMarker(SeriesMarker.NONE).setLineColor(Color.red);
         XChartPanel cp = new XChartPanel(chart);
         cp.setVisible(true);
         cp.setSize(jPanel1.getSize());

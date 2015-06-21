@@ -122,7 +122,7 @@ public class DefaultPrediction extends javax.swing.JDialog {
             sum += Math.abs(norm[series.size() - h] - s) / norm[series.size() - h];
             h--;
         }
-
+        rowPredicted.put(series.size()-1, series.get(series.size()-1));
         jTextField2.setText(String.valueOf(sum / daysToPredict));
         SortedMap<Integer, Double> realRow = new TreeMap<>();
         for (int j = 0; j < series.size(); j++) {

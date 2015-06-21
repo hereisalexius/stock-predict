@@ -95,26 +95,25 @@ public class Series {
         double[] result = new double[this.values.length - 1];
 
         for (int i = 0; i < result.length; i++) {
-            result[i] = get(i + 1) - get(i);
+            result[i] = (get(i + 1) - get(i))*10;
         }
         return result;
     }
 
-    public Map<double[], double[]> getTrainingSet(int timeToPredict) {
-        Map<double[], double[]> trainingSet = new TreeMap<>();
-
-        int window = (int) this.getBestFFTSpectralAnalizeId();
-        double[] normalized = this.getNormalizedValues();
-
-        for (int i = 0; i < normalized.length - timeToPredict; i++) {
-            double[] in = Arrays.copyOfRange(normalized, i, window + i);
-            double[] out = Arrays.copyOfRange(normalized, window + i, timeToPredict + (i + 2));
-            trainingSet.put(in, out);
-        }
-
-        return trainingSet;
-    }
-
+//    public Map<double[], double[]> getTrainingSet(int timeToPredict) {
+//        Map<double[], double[]> trainingSet = new TreeMap<>();
+//
+//        int window = (int) this.getBestFFTSpectralAnalizeId();
+//        double[] normalized = this.getNormalizedValues();
+//
+//        for (int i = 0; i < normalized.length - timeToPredict; i++) {
+//            double[] in = Arrays.copyOfRange(normalized, i, window + i);
+//            double[] out = Arrays.copyOfRange(normalized, window + i, timeToPredict + (i + 2));
+//            trainingSet.put(in, out);
+//        }
+//
+//        return trainingSet;
+//    }
     public DataSet getTrainingForFindError() {
         int input = (int) this.getBestFFTSpectralAnalizeId();
         double[] norm = this.getNormalizedValues();
@@ -159,6 +158,26 @@ public class Series {
 
     public DataSet getTrainingSet() {
         int input = (int) this.getBestFFTSpectralAnalizeId();
+        DataSet traningSet = new DataSet(input, 1);
+        double[] norm = this.getNormalizedValues();
+        double[] in = new double[input];
+        double[] out = new double[1];
+
+        for (int i = 0; i < norm.length - (1 + input); i++) {
+            for (int j = i; j < i + input; j++) {
+                in[j - i] = norm[j];
+            }
+
+            out[0]
+                    = norm[i + input];
+
+            traningSet.addRow(in, out);
+        }
+        return traningSet;
+    }
+
+    public DataSet getTrainingSet(int input) {
+
         DataSet traningSet = new DataSet(input, 1);
         double[] norm = this.getNormalizedValues();
         double[] in = new double[input];
@@ -240,10 +259,9 @@ public class Series {
         return result;
     }
 
-    public double getMaxFFTSpectralAnalizeValue() {
-        return getFFTSpectralAnalizeResults()[(int) getBestFFTSpectralAnalizeId()];
-    }
-
+//    public double getMaxFFTSpectralAnalizeValue() {
+//        return getFFTSpectralAnalizeResults()[(int) getBestFFTSpectralAnalizeId()];
+//    }
     public void convertForPowerOfTwo() {
         int l = values.length;
         values = Arrays.copyOfRange(values, l - getMaxOfPowerOf2(l), l);

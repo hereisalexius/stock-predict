@@ -21,11 +21,14 @@ import com.xeiam.xchart.ChartBuilder;
 import com.xeiam.xchart.SeriesMarker;
 import com.xeiam.xchart.XChartPanel;
 import java.security.SecureRandom;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import org.neuroph.core.NeuralNetwork;
 import org.neuroph.core.learning.LearningRule;
+import org.neuroph.core.transfer.Linear;
+import org.neuroph.core.transfer.TransferFunction;
 import org.neuroph.nnet.MultiLayerPerceptron;
 import org.neuroph.nnet.learning.BackPropagation;
 import org.neuroph.util.TransferFunctionType;
@@ -41,11 +44,15 @@ public class DefaultPrediction extends javax.swing.JDialog {
     private final TransferFunctionType tft;
     private final LearningRule lr;
 
-    public DefaultPrediction(java.awt.Frame parent, boolean modal, Series series, TransferFunctionType tft, LearningRule lr) {
+    private int daysTopredict
+
+    public DefaultPrediction(java.awt.Frame parent, boolean modal, Series series, TransferFunctionType tft, LearningRule lr, int daysToPredict) {
         super(parent, modal);
         this.tft = tft;
         this.series = series;
         this.lr = lr;
+        this.daysTopredict = daysToPredict
+        ''
         //series.convertForPowerOfTwo();
 
         initComponents();
@@ -54,9 +61,11 @@ public class DefaultPrediction extends javax.swing.JDialog {
     }
 
     private void findAll() {
+        predict();
         setUpErrors();
         drawFFT();
-        predict();
+
+        // predictTest();
     }
 
     private void setUpErrors() {
@@ -111,14 +120,14 @@ public class DefaultPrediction extends javax.swing.JDialog {
             h--;
         }
 
-        jTextField2.setText(String.valueOf(sum));
+        jTextField2.setText(String.valueOf(sum / daysToPredict));
         SortedMap<Integer, Double> realRow = new TreeMap<>();
         for (int j = 0; j < series.size(); j++) {
             realRow.put(j, series.get(j));
 
         }
 
-        drawChartE(realRow, rowPredicted);
+        drawChartE(realRow, rowPredicted,predictTest());
 
     }
 
@@ -134,7 +143,7 @@ public class DefaultPrediction extends javax.swing.JDialog {
 
         }
         chart.addSeries("real", ids, series.getFFTSpectralAnalizeResults()).setMarker(SeriesMarker.NONE);
-        chart.addSeries("max", new double[]{series.getBestFFTSpectralAnalizeId(), series.getBestFFTSpectralAnalizeId()}, new double[]{0, series.getMaxFFTSpectralAnalizeValue()}).setMarker(SeriesMarker.NONE);
+        //chart.addSeries("max", new double[]{series.getBestFFTSpectralAnalizeId(), series.getBestFFTSpectralAnalizeId()}, new double[]{0, series.getMaxFFTSpectralAnalizeValue()}).setMarker(SeriesMarker.NONE);
 
         XChartPanel cp = new XChartPanel(chart);
         cp.setSize(jPanel2.getSize());
@@ -143,12 +152,13 @@ public class DefaultPrediction extends javax.swing.JDialog {
 
     }
 
-    private void drawChartE(Map<Integer, Double> row, Map<Integer, Double> row2) {
+    private void drawChartE(Map<Integer, Double> row, Map<Integer, Double> row2, Map<Integer, Double> row3) {
         Chart chart = new ChartBuilder().width(jPanel1.getWidth()).height(jPanel1.getHeight()).title("Economics").build();
         chart.getStyleManager().setLegendVisible(false);
         //chart.getStyleManager().setChartType(StyleManager.ChartType.Scatter);
         chart.addSeries("real", row.keySet(), row.values()).setMarker(SeriesMarker.NONE);
-        chart.addSeries("predicted", row2.keySet(), row2.values()).setMarker(SeriesMarker.NONE);
+        chart.addSeries("checked", row2.keySet(), row2.values()).setMarker(SeriesMarker.NONE);
+        chart.addSeries("predicted", row3.keySet(), row3.values()).setMarker(SeriesMarker.NONE);
         XChartPanel cp = new XChartPanel(chart);
         cp.setVisible(true);
         cp.setSize(jPanel1.getSize());
@@ -165,8 +175,34 @@ public class DefaultPrediction extends javax.swing.JDialog {
         neuralNetwork.setInput(series.getLast());
         neuralNetwork.calculate();
         jTextField1.setText(String.valueOf(neuralNetwork.getOutput()[0] * series.getMaxValue()));
+        this.series.appendValues(neuralNetwork.getOutput()[0] * series.getMaxValue());
         long finish = System.currentTimeMillis();
         jTextField4.setText(String.valueOf(finish - start));
+    }
+
+    private Map<Integer, Double> predictTest() {
+
+        Series sInterp = new Series(series.getValues());
+
+        NeuralNetwork nn2 = new MultiLayerPerceptron(TransferFunctionType.SIGMOID, 30, 80, daysTopredict);
+        BackPropagation l2 = new BackPropagation();
+        l2.setMaxError(0.0001);
+        l2.setLearningRate(0.7);
+        l2.setMaxIterations(10000);
+        nn2.setLearningRule(l2);
+        nn2.randomizeWeights(new SecureRandom());
+        nn2.learn(sInterp.getTrainingForFindError(30, daysTopredict));
+        nn2.setInput(sInterp.getLast(30));
+        nn2.calculate();
+        Series iy = new Series(nn2.getOutput());
+
+        Map<Integer, Double> m = new HashMap<>();
+        for (int i = 0; i < iy.getInterpolatedValues().length; i++) {
+            m.put(i + series.size()-1, series.get(series.size() - 1) + iy.getInterpolatedValues()[i];
+            jTextField5.setText(jTextField5.getText()+series.get(series.size() - 1) + iy.getInterpolatedValues()[i]+",");
+  
+        }
+        return m;
     }
 
     /**
@@ -189,8 +225,11 @@ public class DefaultPrediction extends javax.swing.JDialog {
         jPanel2 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         jTextField4 = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        jTextField5 = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setResizable(false);
 
         jTextField1.setEditable(false);
 
@@ -208,11 +247,11 @@ public class DefaultPrediction extends javax.swing.JDialog {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 525, Short.MAX_VALUE)
+            .addGap(0, 935, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 372, Short.MAX_VALUE)
+            .addGap(0, 561, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Prediction Chart", jPanel1);
@@ -221,11 +260,11 @@ public class DefaultPrediction extends javax.swing.JDialog {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 525, Short.MAX_VALUE)
+            .addGap(0, 935, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 372, Short.MAX_VALUE)
+            .addGap(0, 561, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("FFT Chart", jPanel2);
@@ -233,6 +272,8 @@ public class DefaultPrediction extends javax.swing.JDialog {
         jLabel4.setText("Time(millis)");
 
         jTextField4.setEditable(false);
+
+        jLabel5.setText("HRP");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -253,10 +294,16 @@ public class DefaultPrediction extends javax.swing.JDialog {
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jTextField3)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel5))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jTextField5))
                 .addContainerGap())
             .addComponent(jTabbedPane1)
         );
@@ -273,7 +320,9 @@ public class DefaultPrediction extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5)
+                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -290,6 +339,7 @@ public class DefaultPrediction extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JTabbedPane jTabbedPane1;
@@ -297,5 +347,6 @@ public class DefaultPrediction extends javax.swing.JDialog {
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
+    private javax.swing.JTextField jTextField5;
     // End of variables declaration//GEN-END:variables
 }

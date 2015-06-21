@@ -80,19 +80,19 @@ public class DefaultPrediction extends javax.swing.JDialog {
         int output = daysToPredict;
 
         NeuralNetwork neuralNetwork = new MultiLayerPerceptron(tft, input, hidden, output);
-        LearningRule learningRule = new BackPropagation();
+//        LearningRule learningRule = new BackPropagation();
+//
+//        ((BackPropagation) learningRule).setMaxError(0.00001);
+//        ((BackPropagation) learningRule).setMaxIterations(10000);
+//        ((BackPropagation) learningRule).setLearningRate(0.7);
+        neuralNetwork.setLearningRule(lr);
 
-        ((BackPropagation) learningRule).setMaxError(0.00001);
-        ((BackPropagation) learningRule).setMaxIterations(10000);
-        ((BackPropagation) learningRule).setLearningRate(0.7);
-        neuralNetwork.setLearningRule(learningRule);
-
-        if (((BackPropagation) lr).getMaxError() >= 0.00001) {
-            neuralNetwork.randomizeWeights(new SecureRandom());
-        } else {
-            neuralNetwork.randomizeWeights(new GaussianRandomizer(0.5, 0.7));
-        }
-
+//        if (((BackPropagation) lr).getMaxError() >= 0.00001) {
+//            neuralNetwork.randomizeWeights(new SecureRandom());
+//        } else {
+//            neuralNetwork.randomizeWeights(new GaussianRandomizer(0.5, 0.7));
+//        }
+  neuralNetwork.randomizeWeights(new SecureRandom());
         neuralNetwork.learn(series.getTrainingForFindError(input, output));
 
         double[] selection = new double[input];

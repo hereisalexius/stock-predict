@@ -44,15 +44,15 @@ public class DefaultPrediction extends javax.swing.JDialog {
     private final TransferFunctionType tft;
     private final LearningRule lr;
 
-    private int daysTopredict
+    private int daysTopredict;
 
     public DefaultPrediction(java.awt.Frame parent, boolean modal, Series series, TransferFunctionType tft, LearningRule lr, int daysToPredict) {
         super(parent, modal);
         this.tft = tft;
         this.series = series;
         this.lr = lr;
-        this.daysTopredict = daysToPredict
-        ''
+        this.daysTopredict = daysToPredict;
+       
         //series.convertForPowerOfTwo();
 
         initComponents();
@@ -198,7 +198,7 @@ public class DefaultPrediction extends javax.swing.JDialog {
 
         Map<Integer, Double> m = new HashMap<>();
         for (int i = 0; i < iy.getInterpolatedValues().length; i++) {
-            m.put(i + series.size()-1, series.get(series.size() - 1) + iy.getInterpolatedValues()[i];
+            m.put(i + series.size()-1, series.get(series.size() - 1) + iy.getInterpolatedValues()[i]);
             jTextField5.setText(jTextField5.getText()+series.get(series.size() - 1) + iy.getInterpolatedValues()[i]+",");
   
         }
@@ -318,11 +318,12 @@ public class DefaultPrediction extends javax.swing.JDialog {
                     .addComponent(jLabel4)
                     .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5)
-                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel3)
+                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)

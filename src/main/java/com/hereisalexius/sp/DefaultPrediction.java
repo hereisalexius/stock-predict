@@ -1,4 +1,3 @@
-
 package com.hereisalexius.sp;
 
 import com.xeiam.xchart.Chart;
@@ -20,7 +19,6 @@ import org.neuroph.nnet.learning.BackPropagation;
 import org.neuroph.util.TransferFunctionType;
 import org.neuroph.util.random.GaussianRandomizer;
 
-
 public class DefaultPrediction extends javax.swing.JDialog {
 
     private final Series series;
@@ -29,15 +27,18 @@ public class DefaultPrediction extends javax.swing.JDialog {
 
     private int daysTopredict;
     private int testSelection;
+    private int input;
+    private int hidden;
 
-    public DefaultPrediction(java.awt.Frame parent, boolean modal, Series series, TransferFunctionType tft, LearningRule lr, int daysToPredict,int testSelection) {
+    public DefaultPrediction(java.awt.Frame parent, boolean modal, Series series, TransferFunctionType tft, LearningRule lr, int daysToPredict, int testSelection, int input, int hidden) {
         super(parent, modal);
         this.tft = tft;
         this.series = series;
         this.lr = lr;
         this.daysTopredict = daysToPredict;
         this.testSelection = testSelection;
-       
+        this.input = input;
+        this.hidden = hidden;
         //series.convertForPowerOfTwo();
 
         initComponents();
@@ -56,9 +57,9 @@ public class DefaultPrediction extends javax.swing.JDialog {
     private void setUpErrors() {
 
         int daysToPredict = testSelection;
-        int windowSize = 2;
+        int windowSize = input;
         int input = windowSize;
-        int hidden = 2 * input + 1;
+        int hidden = this.hidden;
         int output = daysToPredict;
 
         NeuralNetwork neuralNetwork = new MultiLayerPerceptron(tft, input, hidden, output);
@@ -71,10 +72,10 @@ public class DefaultPrediction extends javax.swing.JDialog {
 
 //        if (((BackPropagation) lr).getMaxError() >= 0.00001) {
 //            neuralNetwork.randomizeWeights(new SecureRandom());
-//        } else {
-//            neuralNetwork.randomizeWeights(new GaussianRandomizer(0.5, 0.7));
+//     } else {
+//       neuralNetwork.randomizeWeights(new GaussianRandomizer(0.5, 0.7));
 //        }
-  neuralNetwork.randomizeWeights(new SecureRandom());
+        neuralNetwork.randomizeWeights(new SecureRandom());
         neuralNetwork.learn(series.getTrainingForFindError(input, output));
 
         double[] selection = new double[input];
@@ -104,7 +105,7 @@ public class DefaultPrediction extends javax.swing.JDialog {
             sum += Math.abs(norm[series.size() - h] - s) / norm[series.size() - h];
             h--;
         }
-        rowPredicted.put(series.size()-1, series.get(series.size()-1));
+        rowPredicted.put(series.size() - 1, series.get(series.size() - 1));
         jTextField2.setText(String.valueOf(sum / daysToPredict));
         SortedMap<Integer, Double> realRow = new TreeMap<>();
         for (int j = 0; j < series.size(); j++) {
@@ -112,7 +113,7 @@ public class DefaultPrediction extends javax.swing.JDialog {
 
         }
 
-        drawChartE(realRow, rowPredicted,predictTest());
+        drawChartE(realRow, rowPredicted, predictTest());
 
     }
 
@@ -152,12 +153,12 @@ public class DefaultPrediction extends javax.swing.JDialog {
 
     private void predict() {
         long start = System.currentTimeMillis();
-        int window = (int) series.getBestFFTSpectralAnalizeId();
-        NeuralNetwork neuralNetwork = new MultiLayerPerceptron(tft, window, 2 * window + 1, 1);
+        //int window = (int) series.getBestFFTSpectralAnalizeId();
+        NeuralNetwork neuralNetwork = new MultiLayerPerceptron(tft, input, hidden, 1);
         neuralNetwork.setLearningRule(lr);
         neuralNetwork.randomizeWeights(new SecureRandom());
-        neuralNetwork.learn(series.getTrainingSet());
-        neuralNetwork.setInput(series.getLast());
+        neuralNetwork.learn(series.getTrainingSet(input));
+        neuralNetwork.setInput(series.getLast(input));
         neuralNetwork.calculate();
         jTextField1.setText(String.valueOf(neuralNetwork.getOutput()[0] * series.getMaxValue()));
         this.series.appendValues(neuralNetwork.getOutput()[0] * series.getMaxValue());
@@ -183,9 +184,9 @@ public class DefaultPrediction extends javax.swing.JDialog {
 
         Map<Integer, Double> m = new HashMap<>();
         for (int i = 0; i < iy.getInterpolatedValues().length; i++) {
-            m.put(i + series.size()-1, series.get(series.size() - 1) + iy.getInterpolatedValues()[i]);
-            jTextField5.setText(jTextField5.getText()+series.get(series.size() - 1) + iy.getInterpolatedValues()[i]+",");
-  
+            m.put(i + series.size() - 1, series.get(series.size() - 1) + iy.getInterpolatedValues()[i]);
+            jTextField5.setText(jTextField5.getText() + series.get(series.size() - 1) + iy.getInterpolatedValues()[i] + ",");
+
         }
         return m;
     }
@@ -224,7 +225,7 @@ public class DefaultPrediction extends javax.swing.JDialog {
 
         jTextField2.setEditable(false);
 
-        jLabel3.setText("Error");
+        jLabel3.setText("Error(%)");
 
         jTextField3.setEditable(false);
 

@@ -158,9 +158,9 @@ public class Series {
 
     public DataSet getTrainingSet(int input) {
 
-        DataSet traningSet = new DataSet(input + 1, 1);
+        DataSet traningSet = new DataSet(input, 1);
         double[] norm = this.getNormalizedValues();
-        double[] in = new double[input + 1];
+        double[] in = new double[input];
         double[] out = new double[1];
 
         for (int i = 0; i < norm.length - (1 + input); i++) {

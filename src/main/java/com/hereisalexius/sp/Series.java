@@ -1,4 +1,3 @@
-
 package com.hereisalexius.sp;
 
 import java.util.ArrayList;
@@ -76,7 +75,7 @@ public class Series {
         double[] result = new double[this.values.length - 1];
 
         for (int i = 0; i < result.length; i++) {
-            result[i] = (get(i + 1) - get(i))*10;
+            result[i] = (get(i + 1) - get(i)) * 10;
         }
         return result;
     }
@@ -159,14 +158,15 @@ public class Series {
 
     public DataSet getTrainingSet(int input) {
 
-        DataSet traningSet = new DataSet(input, 1);
+        DataSet traningSet = new DataSet(input + 1, 1);
         double[] norm = this.getNormalizedValues();
-        double[] in = new double[input];
+        double[] in = new double[input + 1];
         double[] out = new double[1];
 
         for (int i = 0; i < norm.length - (1 + input); i++) {
             for (int j = i; j < i + input; j++) {
                 in[j - i] = norm[j];
+                in[(j - i)] = j / norm.length;
             }
 
             out[0]

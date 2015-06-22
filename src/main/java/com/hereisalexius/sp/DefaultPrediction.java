@@ -144,7 +144,7 @@ public class DefaultPrediction extends javax.swing.JDialog {
         //chart.getStyleManager().setChartType(StyleManager.ChartType.Scatter);
         chart.addSeries("real", row.keySet(), row.values()).setMarker(SeriesMarker.NONE);
         chart.addSeries("checked", row2.keySet(), row2.values()).setMarker(SeriesMarker.NONE);
-        chart.addSeries("predicted", row3.keySet(), row3.values()).setMarker(SeriesMarker.NONE).setLineColor(Color.red);
+        //chart.addSeries("predicted", row3.keySet(), row3.values()).setMarker(SeriesMarker.NONE).setLineColor(Color.red);
         XChartPanel cp = new XChartPanel(chart);
         cp.setVisible(true);
         cp.setSize(jPanel1.getSize());
